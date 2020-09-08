@@ -1,20 +1,40 @@
-const helpers = require('./helpers/helper_function');
+const puppeteer = require('puppeteer');
 const chalk = require('chalk');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 const path = require('path');
 const screenshotsPath = path.resolve('./screenshots/');
-
-const extensionPopupHtml = 'index.html';
-// Last parameter is supposed to be deleted after tab changes are official
+//const pathToExtension = path.resolve('./build'); // Use this if you have a local build of the extension
+//This is the path where the extension build lives in MacOS, for other operating systems please add yours:
+const pathToExtension = ('/Users/eledezma/Library/Application Support/Google/Chrome/Default/Extensions/jimdhomgkpmmhhcegiebdajlkmjgikaf/1.3.5_0');
 
 if (!fs.existsSync(screenshotsPath)) {
   mkdirp.sync(screenshotsPath);
 }
 
-const extensionURL = async function() {
+/**
+ * Creates and returns Browser instance with Chrome extension loaded.
+ * @returns {Promise<*>} browser
+ */
+exports.getBrowser = async function() {
+  return await puppeteer.launch({
+    headless: false,
+    args: [
+      `--disable-extensions-except=${pathToExtension}`,
+      `--load-extension=${pathToExtension}`,
+      '--user-agent=PuppeterAgent',
+      '--no-sandbox',
+      '--disable-setuid-sandbox'
+    ]
+  });
+};
+
+/**
+ * Returns Extension URL that will be used as a webpage.
+ * @returns {String} extensionURL
+ */
+exports.extensionURL = async function() {
   console.log(chalk.green('Setup Puppeteer'));
-  const browser = await helpers.getBrowser();
 
   // Get Chrome Extension ID without hard-coding it
   /*
@@ -26,10 +46,7 @@ const extensionURL = async function() {
   const extensionUrl = extensionTarget._targetInfo.url || '';
   const [,, extensionID] = extensionUrl.split('/');
   */
-  const extensionURL = `chrome-extension://jimdhomgkpmmhhcegiebdajlkmjgikaf/${extensionPopupHtml}`;
-
-  browser.close();
+  const extensionURL = `chrome-extension://jimdhomgkpmmhhcegiebdajlkmjgikaf/index.html`;
   return extensionURL;
 }();
 
-module.exports = extensionURL;

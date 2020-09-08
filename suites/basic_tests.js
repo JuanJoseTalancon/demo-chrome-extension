@@ -1,22 +1,21 @@
 const ExtensionPage = require('../extension_models/extension_page');
 const helpers = require('../helpers/helper_function');
+const config = require('../setup');
 const expect = require('chai').expect;
-const {assert} = require('chai');
 
 suite('Basic Test', async function () {
 
   let extensionURL;
   let browser;
   let taskPage;
-  let extension;
 
   suiteSetup (async function () {
-    extensionURL = await require('../setup');
+    extensionURL = await config.extensionURL;
     console.log('extensionURL: ', extensionURL);
   });
 
   setup(async function () {
-    browser = await helpers.getBrowser();
+    browser = await config.getBrowser();
     taskPage = await browser.newPage();
     await taskPage.setViewport({
       width: 405,
